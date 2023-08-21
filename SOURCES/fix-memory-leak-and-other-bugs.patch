@@ -1,0 +1,43 @@
+CP-42804: Fix bugs: 1. Memory leak; 2. Dereferencing a freed pointer.
+
+The issues were found by coverity scan tools.
+They are all pre-existing and happen in unlikely error paths, so fixing the issues should have no drawbacks.
+
+Signed-off-by: Stephen Cheng <stephen.cheng@citrix.com>
+---
+ src/i40e_client.c      | 4 ++++
+ src/i40e_virtchnl_pf.c | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/i40e_client.c b/src/i40e_client.c
+index c11fd65..7e66552 100644
+--- a/src/i40e_client.c
++++ b/src/i40e_client.c
+@@ -444,6 +444,10 @@ void i40e_client_subtask(struct i40e_pf *pf)
+ 		}
+ 	}
+ 
++	/* To aviod null pointer of cdev after calling i40e_client_del_instance(pf) */
++	if (!cdev || !cdev->client)
++		return;
++
+ 	/* enable/disable PE TCP_ENA flag based on netdev down/up
+ 	 */
+ 	if (test_bit(__I40E_VSI_DOWN, vsi->state))
+diff --git a/src/i40e_virtchnl_pf.c b/src/i40e_virtchnl_pf.c
+index ee39489..016452c 100644
+--- a/src/i40e_virtchnl_pf.c
++++ b/src/i40e_virtchnl_pf.c
+@@ -999,8 +999,8 @@ static int i40e_add_ingress_egress_mirror(struct i40e_vsi *src_vsi,
+ 				     cnt, mr_list, NULL,
+ 				     rule_id, &rules_used,
+ 				     &rules_free);
+-	kfree(mr_list);
+ err_out:
++	kfree(mr_list);
+ 	return ret;
+ }
+ 
+-- 
+2.34.1
+

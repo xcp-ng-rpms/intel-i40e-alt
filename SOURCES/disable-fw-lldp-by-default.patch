@@ -1,0 +1,42 @@
+CA-377171: Disable FW-LLDP by default
+
+There have been multiple reports of FW-LLDP causing performance issues.
+It doesn't seem to be useful with a XenServer installation so disable it
+by default but provide a module parameter to leave it enabled if
+desired.
+
+It would be possible to do something similar with a udev rule calling
+"ethtool --set-priv-flags ethX disable-fw-lldp on" but this is performed
+after the driver initializes the NIC with FW-LLDP enabled, resulting in
+an extra unnecessary PF reset which it is preferable to avoid.
+
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+diff --git a/src/i40e_main.c b/src/i40e_main.c
+index cd83ec2..785c065 100644
+--- a/src/i40e_main.c
++++ b/src/i40e_main.c
+@@ -148,6 +148,10 @@ static int l4mode = L4_MODE_DISABLED;
+ module_param(l4mode, int, 0000);
+ MODULE_PARM_DESC(l4mode, "L4 cloud filter mode: 0=UDP,1=TCP,2=Both,-1=Disabled(default)");
+ 
++static bool enable_fw_lldp = false;
++module_param(enable_fw_lldp, bool, 0);
++MODULE_PARM_DESC(enable_fw_lldp, "Don't disable FW-LLDP during NIC init");
++
+ 
+ MODULE_AUTHOR("Intel Corporation, <e1000-devel@lists.sourceforge.net>");
+ MODULE_DESCRIPTION("Intel(R) 40-10 Gigabit Ethernet Connection Network Driver");
+@@ -13649,6 +13653,10 @@ static int i40e_sw_init(struct i40e_pf *pf)
+ 	    (pf->hw.aq.fw_maj_ver < 4)))
+ 		pf->hw_features |= I40E_HW_STOP_FW_LLDP;
+ 
++	/* Disable FW LLDP if requested */
++	if (!enable_fw_lldp)
++		pf->hw_features |= I40E_HW_STOP_FW_LLDP;
++
+ 	/* Use the FW Set LLDP MIB API if FW > v4.40 */
+ 	if ((pf->hw.mac.type == I40E_MAC_XL710) &&
+ 	    (((pf->hw.aq.fw_maj_ver == 4) && (pf->hw.aq.fw_min_ver >= 40)) ||
+-- 
+2.31.1
+
