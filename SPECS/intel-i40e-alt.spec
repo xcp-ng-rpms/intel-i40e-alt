@@ -23,6 +23,7 @@ Source0: intel-i40e-2.22.20.tar.gz
 Patch0: disable-fw-lldp-by-default.patch
 Patch1: fix-memory-leak-and-other-bugs.patch
 
+BuildRequires: gcc
 BuildRequires: kernel-devel
 Provides: vendor-driver
 Requires: kernel-uname-r = %{kernel_version}
