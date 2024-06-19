@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="*", DRIVERS=="i40e", PROGRAM="/usr/sbin/ethtool --set-priv-flags $name legacy-rx on"

@@ -1,4 +1,4 @@
-%global xsver 3
+%global xsver 5
 %global xsrel %{xsver}%{?xscount}%{?xshash}
 %define vendor_name Intel
 %define vendor_label intel
@@ -20,6 +20,7 @@ Version: 2.22.20
 Release: %{?xsrel}.1%{?dist}
 License: GPL
 Source0: intel-i40e-2.22.20.tar.gz
+Source1: 10-disable-fw-lldp.rules
 Patch0: disable-fw-lldp-by-default.patch
 Patch1: fix-memory-leak-and-other-bugs.patch
 
@@ -49,6 +50,9 @@ cd ..
 # mark modules executable so that strip-to-file can strip them
 find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chmod u+x
 
+install -d %{buildroot}%{_sysconfdir}/udev/rules.d
+install -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/udev/rules.d/
+
 %post
 /sbin/depmod %{kernel_version}
 %{regenerate_initrd_post}
@@ -62,8 +66,16 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 
 %files
 /lib/modules/%{kernel_version}/*/*.ko
+%{_sysconfdir}/udev/rules.d/*
 
 %changelog
+* Wed Jun 19 2024 Gael Duperrey <gduperrey@vates.tech> - 2.22.20-5.1
+- Synced with intel-i40e-2.22.20-5.xs8~2_1.src.rpm
+- *** Upstream changelog ***
+- * Tue Feb 27 2024 Ross Lagerwall <ross.lagerwall@citrix.com> - 2.22.20-5
+- - CA-386057: Enable legacy-rx by default to resolve performance issue
+- - Note: 2.22.20-5 is for Yangtze, while 2.22.20-4 is for XS8 (rt-next)
+
 * Mon Aug 21 2023 Gael Duperrey <gduperrey@vates.fr> - 2.22.20-3.1
 - initial package, version 2.22.20-3.1
 - Synced from XS driver SRPM intel-i40e-2.22.20-3.xs8~2_1.src.rpm
