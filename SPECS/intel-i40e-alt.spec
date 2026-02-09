@@ -14,7 +14,16 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}-alt
+
+# BEGIN XCP-ng WARNING: This hardware has specific firmware
+# requirements which can make it non-functional if ignored.  Tell
+# users in release notes to google for the "intel <model-name>
+# compatibility matrix" and make sure they update the non-volatile
+# memory in their NIC with the matching NVM version, after updating
+# the driver.
 Version: 2.26.8
+# END XCP-ng WARNING
+
 Release: 1%{?dist}
 License: GPL
 Source0: intel-i40e-%{version}.tar.gz
