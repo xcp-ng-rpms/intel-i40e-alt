@@ -30,6 +30,9 @@ Source0: intel-i40e-%{version}.tar.gz
 Patch0: disable-fw-lldp-by-default.patch
 Patch1: fix-memory-leak-and-other-bugs.patch
 
+# XCP-ng
+Patch1000: 0001-kcompat-lib.sh-workaround-dev-pts-0-being-not-writab.patch
+
 BuildRequires: gcc
 BuildRequires: kernel-devel
 Provides: vendor-driver

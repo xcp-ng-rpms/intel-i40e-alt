@@ -1,0 +1,48 @@
+From ef12e780917a4b2bbd7607cc135ac1da250852b4 Mon Sep 17 00:00:00 2001
+From: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+Date: Thu, 23 Apr 2026 11:07:46 +0200
+Subject: [PATCH] kcompat-lib.sh: workaround /dev/pts/0 being not writable.
+
+Inside the xcp-ng-dev build container, /dev/stderr is a symlink to
+/proc/self/fd/2 which itself is a symlink to /dev/pts/0 which is:
+
+ [builder@36000df4ef84 ~]$ ls -l /dev/pts/0
+ crw--w---- 1 root tty 136, 0 Apr 23 09:04 /dev/pts/0
+
+Due to how redirects need to re-open the file in the script, we get a
+permission denied error at build time:
+
+ ./kcompat-lib.sh: line 398: /dev/stderr: Permission denied
+
+This would not show inside the koji build which uses mock and no container.
+The fix is to simply redirect to the file descriptor 2.
+
+Signed-off-by: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+---
+ intel-i40e-2.26.8/src/kcompat-lib.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/intel-i40e-2.26.8/src/kcompat-lib.sh b/intel-i40e-2.26.8/src/kcompat-lib.sh
+index 19e7211a69be..5754217e6473 100644
+--- a/src/kcompat-lib.sh
++++ b/src/kcompat-lib.sh
+@@ -34,7 +34,7 @@ function filter-out-bad-files() {
+ 	if [ $# = 0 ]; then
+ 		die 10 "no files passed, use '-' when reading from pipe (|)"
+ 	fi
+-	local any=0 diagmsgs=/dev/stderr re=$'[\t \n]'
++	local any=0 diagmsgs=2 re=$'[\t \n]'
+ 	[ -n "${QUIET_COMPAT-}" ] && diagmsgs=/dev/null
+ 	for x in "$@"; do
+ 		if [ -e "$x" ]; then
+@@ -379,7 +379,7 @@ function config_has() {
+ function find_config_file() {
+ 	local -a CSP
+ 	local file
+-	local diagmsgs=/dev/stderr
++	local diagmsgs=2
+
+ 	[ -n "${QUIET_COMPAT-}" ] && diagmsgs=/dev/null
+
+--
+2.43.0
