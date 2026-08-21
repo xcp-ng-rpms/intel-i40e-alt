@@ -24,7 +24,10 @@ Name: %{vendor_label}-%{driver_name}-alt
 Version: 2.26.8
 # END XCP-ng WARNING
 
-Release: 1%{?dist}
+Release: 2%{?dist}
+# Built against new kABI after cip rebase
+Requires: xcpng-kernel-kabi = 4.19.325-cip134+
+
 License: GPL
 Source0: intel-i40e-%{version}.tar.gz
 Patch0: disable-fw-lldp-by-default.patch
@@ -73,6 +76,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 /lib/modules/%{kernel_version}/*/*.ko
 
 %changelog
+* Mon Aug 31 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 2.26.8-2
+- Rebuild for kernel v4.19.325-cip134
+
 * Fri Nov 15 2024 David Morel <david.morel@vates.tech> - 2.26.8-1
 - Update from Intel's latest driver 2.26.8
 - NEED_AUX_BUS=2 compiles auxiliary bus code within the driver, but our kernel
