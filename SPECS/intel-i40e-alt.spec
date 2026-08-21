@@ -30,6 +30,8 @@ Source0: intel-i40e-%{version}.tar.gz
 Patch0: disable-fw-lldp-by-default.patch
 Patch1: fix-memory-leak-and-other-bugs.patch
 
+Patch1000: 0001-intel-i40e-compat-handle-newer-kernels-with-dd_key_i.patch
+
 BuildRequires: gcc
 BuildRequires: kernel-devel
 Provides: vendor-driver
