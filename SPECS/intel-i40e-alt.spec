@@ -46,7 +46,7 @@ version %{kernel_version}.
 
 %build
 cd src
-KSRC=/lib/modules/%{kernel_version}/build OUT=kcompat_generated_defs.h CONFFILE=/lib/modules/%{kernel_version}/build/.config bash kcompat-generator.sh
+KSRC=/lib/modules/%{kernel_version}/build OUT=kcompat_generated_defs.h CONFIG_FILE=/lib/modules/%{kernel_version}/build/include/generated/autoconf.h QUIET_COMPAT=1 bash kcompat-generator.sh
 cd ..
 %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd)/src KSRC=/lib/modules/%{kernel_version}/build modules
 
