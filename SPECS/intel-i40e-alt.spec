@@ -24,7 +24,7 @@ Name: %{vendor_label}-%{driver_name}-alt
 Version: 2.26.8
 # END XCP-ng WARNING
 
-Release: 1.0.kernelpreview.1%{?dist}
+Release: 1.0.kernelpreview.1.0.testv0.1%{?dist}
 License: GPL
 Source0: intel-i40e-%{version}.tar.gz
 Patch0: disable-fw-lldp-by-default.patch
